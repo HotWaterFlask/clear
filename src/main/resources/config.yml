@@ -1,0 +1,491 @@
+# Clear 插件配置
+# 此文件包含 Clear 插件的所有设置
+# 功能：
+# > 服务器TPS检测及提示
+# > 液体流动自动限制
+# > 红石自动检测及清理
+# > 作物自动检测及清理
+# > 自动与手动清理，清理包括实体、怪物、动物
+
+
+
+# #################################
+# #####       TPS配置         #####
+# #################################
+tps:
+  checkInterval: 60         # 检测间隔，单位秒
+  broadcast: false           # tps改变时是否全服提示
+  levels:                   # 注：tps在0.0-20.0之间。比如默认设置表示tps在16.0到20.0之间时为非常好，10.0-16.0之间时为良好，0.0-10.0之间时为很差
+    unknown:                # 未知状态一般出现在服务器刚开启时
+      status: "&7未知"
+      show: "&2(说明：未知状态)"
+    good:
+      threshold: 16.0
+      status: "&a非常好"
+      show: "&2(说明：此状态下如果你仍然感觉卡可能是与服务器&c网络连接不好&2或周围&c建筑较多&2或你的电脑&c配置较差&2)"
+    fine:
+      threshold: 10.0
+      status: "&6良好"
+      show: "&2(说明：此状态下请不要使用&c红石&2，不要过量&c养殖&2动物及其它相关操作)"
+    bad:
+      status: "&c很差"
+      show: "&2(说明：此状态说明&c玩家比较多&2或&c动物太多&2或有人使用&c高频红石&2或放置&c大面积流水岩浆&2或&c其它情况&2)"
+
+# #################################
+# #####  液体(流水/岩浆)限制  #####
+# #################################
+liquid:
+  enable: false
+  checkInterval: 15        # 计时周期，单位秒
+  times:                   # 周期内允许液体流动事件的上限
+    good:                  # 服务器状态为十分好时
+      limit: 5000          # 达到多少时取消玩家倒液体
+      cancel: 8000         # 达到多少直接禁止后续的液体流动事件
+    fine:                  # 服务器状态为良好时
+      limit: 4500
+      cancel: 7000
+    bad:                   # 服务器状态为很差时
+      limit: 4000
+      cancel: 6000
+    unknown:               # 服务器状态为未知时
+      limit: 5000
+      cancel: 8000
+  liquidBlocks:            # 哪些方块是属于液体方块（使用材料名称）
+    - WATER
+    - LAVA
+  items:                   # 手中拿着什么物品时判定为倒液体（使用材料名称）
+    - WATER_BUCKET
+    - LAVA_BUCKET
+    - BUCKET
+
+# #################################
+# #####       红石限制        #####
+# #################################
+redstone:
+  enable: true
+  ignoreWorlds:            # 哪些世界不进行检测（大小写敏感）
+    - ""
+  checkInterval: 100       # 计时周期，单位秒
+  gridSize: 20             # 以多少格分区检测
+  drop: false              # true表示掉落，false表示清除（消失）
+  allBlocks: false         # true表示忽略removeBlocks设置，所有方块都会进行清理
+  removeBlocks:            # 哪些ID的方块进行移除（使用材料名称）
+    - REDSTONE_WIRE
+    - REDSTONE_TORCH
+    - REDSTONE_WALL_TORCH
+    - LEVER
+    - STONE_BUTTON
+    - REPEATER
+    - COMPARATOR
+  reset: true             # 每次移除方块后是否重置计数器
+  times:
+    unknown:               # 服务器状态为未知时
+      tipTimes: 100
+      removeTimes: 140
+    good:                  # 服务器状态为十分好时
+      tipTimes: 100        # 每秒红石事件上限，超过时提示，下同
+      removeTimes: 140     # 每秒红石事件上限，超过时提示+移除方块，然后检测重新计数，下同
+    fine:                  # 服务器状态为良好时
+      tipTimes: 80
+      removeTimes: 120
+    bad:                   # 服务器状态为很差时
+      tipTimes: 60
+      removeTimes: 100
+  tip:
+    ingame: true           # 游戏内提示
+    ingameTipMinInterval: 5000 # 游戏内提示的最小间隔，防刷屏，单位毫秒，0表示无间隔
+    console: true          # 控制台提示
+    consoleTipMinInterval: 500 # 控制台提示的最小间隔，防刷屏，单位毫秒，0表示无间隔
+
+# #################################
+# #####       作物限制        #####
+# #################################
+# 包括(小麦,胡萝卜,马铃薯,甘蔗,仙人掌,西瓜,南瓜)生长事件与蘑菇蔓延事件
+crop:                      # 作物限制
+  enable: false
+  ignoreWorlds:            # 哪些世界不进行检测（大小写敏感）
+    - ""
+  checkInterval: 20        # 检测周期，单位秒
+  gridSize: 30             # 以多少格分区检测
+  max: 30                  # 周期内作物事件计数上限
+  drop: true               # true表示掉落，false表示清除（消失）
+  reset: false             # 每次移除方块后是否重置计数器
+  tip:
+    ingame: false          # 游戏内提示
+    ingameTipMinInterval: 5000 # 游戏内提示的最小间隔，防刷屏，单位毫秒，0表示无间隔
+    console: true          # 控制台提示
+    consoleTipMinInterval: 500 # 控制台提示的最小间隔，防刷屏，单位毫秒，0表示无间隔
+  
+# #################################
+# #####       实体回收        #####
+# #################################
+
+# 动物回收系统配置
+animal-recycling:
+  enabled: true            # 是否启用动物回收系统
+  firstAll: true           # true表示在检测生成箱子前先进行遍历箱子检测,消耗资源大,但效果更好
+  heightMax: 2             # 只对firstAll为true的情况有效.值>=0.表示会选择动物的y坐标,遍历整个区的y-heightMin到y+heightMax
+  heightMin: 1             # 同上,值>=0
+  clearTypes:              # 需要清除的实体类型及相应的变成蛋的机率(注意:此机率从0-1000,如100表示100/1000的机率)
+    monsters:              # 怪物回收配置
+      enabled: false        # 是否启用怪物回收
+      types:               # 怪物类型及概率列表，格式：- 实体类型 概率
+        - ZOMBIE 400
+        - SKELETON 400
+        - CREEPER 400
+        - SPIDER 400
+        - ENDERMAN 400
+        - ZOMBIE_VILLAGER 400
+        - DROWNED 400
+        - HUSK 400
+        - STRAY 400
+        - WITHER_SKELETON 400
+    animals:               # 动物回收配置
+      enabled: true        # 是否启用动物回收
+      types:               # 动物类型及概率列表，格式：- 实体类型 概率
+        - COW 200
+        - PIG 200
+        - SHEEP 200
+        - CHICKEN 200
+        - HORSE 200
+        - DONKEY 200
+        - MULE 200
+        - LLAMA 200
+        - TRADER_LLAMA 200
+        - CAT 0
+        - WOLF 0
+        - FOX 200
+        - RABBIT 200
+        - BEE 200
+        - TURTLE 200
+        - PANDAS 200
+        - AXOLOTL 200
+        - CAMEL 200
+        - GOAT 200
+        - ARMADILLO 200
+  airBlocks:               # 检测方块时被当作空气的方块列表,在自动生成箱子时用到,这些方块会被当作空气
+    - AIR
+    - OAK_LEAVES
+    - TALL_GRASS
+    - DEAD_BUSH
+    - DANDELION
+    - POPPY
+    - BLUE_ORCHID
+    - ALLIUM
+    - WHEAT
+    - SUGAR_CANE
+    - PUMPKIN_STEM
+    - VINE
+
+# 实体分类，用于更精细的控制
+entity-categories:
+  # 怪物 - 敌对生物
+  monsters:
+    enableDensityCheck: false  # 是否启用密集检测，false表示直接清理所有该类型实体
+    types:
+      - BLAZE
+      - CAVE_SPIDER
+      - CREEPER
+      - DROWNED
+      - ENDERMAN
+      - ENDERMITE
+      - EVOKER
+      - GHAST
+      - GUARDIAN
+      - HOGLIN
+      - HUSK
+      - MAGMA_CUBE
+      - PHANTOM
+      - PIGLIN
+      - PIGLIN_BRUTE
+      - PILLAGER
+      - RAVAGER
+      - SHULKER
+      - SILVERFISH
+      - SKELETON
+      - SLIME
+      - SPIDER
+      - STRAY
+      - VEX
+      - VINDICATOR
+      - WITCH
+      - WITHER_SKELETON
+      - ZOGLIN
+      - ZOMBIE
+      - ZOMBIE_VILLAGER
+      - BREEZE
+      - BOGGED
+      - HAPPY_GHAST
+      - OMINOUS_ITEM_SPAWNER
+      - CREAKING
+      - ELDER_GUARDIAN
+      - GIANT
+      - ILLUSIONER
+      - WARDEN
+      - ZOMBIE_HORSE
+      - ZOMBIFIED_PIGLIN
+      - ENDER_DRAGON
+      - WITHER
+    
+    # 密集清理配置
+    gridSize: 10              # 网格大小，单位方块
+    maxPerGrid: 5             # 每个网格最大允许的怪物数量
+  
+  # 动物 - 被动生物
+  animals:
+    enableDensityCheck: true  # 是否启用密集检测，false表示直接清理所有该类型实体
+    types:
+      - BAT
+      - BEE
+      - CAT
+      - CHICKEN
+      - COW
+      - DOLPHIN
+      - DONKEY
+      - FOX
+      - FROG
+      - GOAT
+      - HORSE
+      - LLAMA
+      - MULE
+      - OCELOT
+      - PANDA
+      - PARROT
+      - PIG
+      - POLAR_BEAR
+      - RABBIT
+      - SHEEP
+      - SKELETON_HORSE
+      - SQUID
+      - TADPOLE
+      - TURTLE
+      - VILLAGER
+      - WANDERING_TRADER
+      - WOLF
+      - ALLAY
+      - ARMADILLO
+      - AXOLOTL
+      - CAMEL
+      - SNOW_GOLEM
+      - COPPER_GOLEM
+      - SNIFFER
+      - TROPICAL_FISH
+      - MOOSHROOM
+      - STRIDER
+      - GLOW_SQUID
+      - TRADER_LLAMA
+      - IRON_GOLEM
+    
+    # 密集清理配置
+    gridSize: 10              # 网格大小，单位方块
+    maxPerGrid: 5             # 每个网格最大允许的动物数量
+  
+  # 物品 - 掉落的物品
+  items:
+    enableDensityCheck: false  # 是否启用密集检测，false表示直接清理所有该类型实体
+    types:
+      - ITEM
+    
+    # 珍贵物品列表 - 这些物品不会被清理
+    # 格式：物品ID或物品名称
+    whitelist:
+      - DIAMOND
+      - EMERALD
+      - NETHERITE_INGOT
+      - NETHERITE_SCRAP
+      - ANCIENT_DEBRIS
+      - ENCHANTED_GOLDEN_APPLE
+      - GOLDEN_APPLE
+      - DIAMOND_BLOCK
+      - EMERALD_BLOCK
+      - NETHERITE_BLOCK
+      - BEACON
+      - ENCHANTED_BOOK
+      - ENDER_CHEST
+      - SHULKER_BOX
+      - BLACK_SHULKER_BOX
+      - BLUE_SHULKER_BOX
+      - BROWN_SHULKER_BOX
+      - CYAN_SHULKER_BOX
+      - GRAY_SHULKER_BOX
+      - GREEN_SHULKER_BOX
+      - LIGHT_BLUE_SHULKER_BOX
+      - LIGHT_GRAY_SHULKER_BOX
+      - LIME_SHULKER_BOX
+      - MAGENTA_SHULKER_BOX
+      - ORANGE_SHULKER_BOX
+      - PINK_SHULKER_BOX
+      - PURPLE_SHULKER_BOX
+      - RED_SHULKER_BOX
+      - WHITE_SHULKER_BOX
+      - YELLOW_SHULKER_BOX
+      - DRAGON_EGG
+      - ELYTRA
+      - TRIDENT
+      - NAUTILUS_SHELL
+      - HEART_OF_THE_SEA
+      - TOTEM_OF_UNDYING
+      - GILDED_BLACKSTONE
+      - CRYING_OBSIDIAN
+      - NETHER_STAR
+      - GHAST_TEAR
+      - GLOWSTONE_DUST
+      - REDSTONE
+      - LAPIS_LAZULI
+      - QUARTZ
+      - COAL
+      - IRON_INGOT
+      - GOLD_INGOT
+      - COPPER_INGOT
+      - NETHERITE_HOE
+      - NETHERITE_SWORD
+      - NETHERITE_PICKAXE
+      - NETHERITE_AXE
+      - NETHERITE_SHOVEL
+      - NETHERITE_HELMET
+      - NETHERITE_CHESTPLATE
+      - NETHERITE_LEGGINGS
+      - NETHERITE_BOOTS
+    
+    # 密集清理配置
+    gridSize: 5               # 网格大小，单位方块
+    maxPerGrid: 10            # 每个网格最大允许的物品数量
+  
+  # 交通工具 - 船只、矿车等
+  vehicles:
+    enableDensityCheck: true  # 是否启用密集检测，false表示直接清理所有该类型实体
+    types:
+      - BOAT
+      - CHEST_BOAT
+      - MINECART
+      - MINECART_CHEST
+      - MINECART_COMMAND
+      - MINECART_FURNACE
+      - MINECART_HOPPER
+      - MINECART_TNT
+      - ACACIA_BOAT
+      - ACACIA_CHEST_BOAT
+      - BAMBOO_RAFT
+      - BAMBOO_CHEST_RAFT
+      - BIRCH_BOAT
+      - BIRCH_CHEST_BOAT
+      - CHERRY_BOAT
+      - CHERRY_CHEST_BOAT
+      - DARK_OAK_BOAT
+      - DARK_OAK_CHEST_BOAT
+      - JUNGLE_BOAT
+      - JUNGLE_CHEST_BOAT
+      - MANGROVE_BOAT
+      - MANGROVE_CHEST_BOAT
+      - PALE_OAK_BOAT
+      - PALE_OAK_CHEST_BOAT
+      - SPRUCE_BOAT
+      - SPRUCE_CHEST_BOAT
+      - SPAWNER_MINECART
+    
+    # 密集清理配置
+    gridSize: 15              # 网格大小，单位方块
+    maxPerGrid: 3             # 每个网格最大允许的载具数量
+  
+  # 投射物 - 箭矢、药水等
+  projectiles:
+    enableDensityCheck: false  # 是否启用密集检测，false表示直接清理所有该类型实体
+    types:
+      - ARROW
+      - ENDER_PEARL
+      - ENDER_SIGNAL
+      - EXPERIENCE_BOTTLE
+      - FIREBALL
+      - FIREWORK_ROCKET
+      - FISHING_HOOK
+      - POTION
+      - SHULKER_BULLET
+      - SMALL_FIREBALL
+      - SNOWBALL
+      - SPECTRAL_ARROW
+      - TRIDENT
+      - AREA_EFFECT_CLOUD
+      - END_CRYSTAL
+      - EYE_OF_ENDER
+      - LLAMA_SPIT
+      - PRIMED_TNT
+      - EGG
+      - WITHER_SKULL
+      - BREEZE_WIND_CHARGE
+      - WIND_CHARGE
+      - LIGHTNING_BOLT
+      - FALLING_BLOCK
+      - EXPERIENCE_ORB
+      - EVOKER_FANGS
+      - DRAGON_FIREBALL
+    
+    # 密集清理配置
+    gridSize: 5               # 网格大小，单位方块
+    maxPerGrid: 15            # 每个网格最大允许的投射物数量
+  
+  # 特殊实体 - 显示实体、交互实体等
+  special:
+    enableDensityCheck: true  # 是否启用密集检测，false表示直接清理所有该类型实体
+    types:
+      - BLOCK_DISPLAY
+      - ITEM_DISPLAY
+      - TEXT_DISPLAY
+      - INTERACTION
+      - MARKER
+      - ARMOR_STAND
+      - LEASH_KNOT
+      - ITEM_FRAME
+      - GLOW_ITEM_FRAME
+      - PAINTING
+      - MANNEQUIN
+    
+    # 密集清理配置
+    gridSize: 10              # 网格大小，单位方块
+    maxPerGrid: 5             # 每个网格最大允许的特殊实体数量
+
+# #################################
+# #####        自动清理        #####
+# #################################
+clear:
+  tip: true               # 清理时是否全服通告
+  ignoreWorlds:            # 哪些世界不进行检测(大小写敏感)
+    - 
+  checkInterval: 300       # 检测间隔,单位秒
+  startClearEntitys: 1000  # 自动清理检测时,如果服务器实体数量没有达到这个值,则取消清理
+  mustClear:
+    amount: 5000           # 自动清理检测时,如果服务器实体数量达到了这个值,则必然开启清理
+    level: 3               # 清理等级
+  clear:
+    unknown:               # 服务器状态为未知时,清理等级0
+      show: "无"
+      monsters: false       # 是否清理怪物
+      animals: false        # 是否清理动物
+      items: false          # 是否清理物品
+      vehicles: false       # 是否清理载具
+      projectiles: false    # 是否清理弹射物
+      special: false        # 是否清理特殊实体
+    good:                  # 服务器状态为非常好时,清理等级1
+      show: "低级"
+      monsters: false       # 是否清理怪物
+      animals: false        # 是否清理动物
+      items: false          # 是否清理物品
+      vehicles: false       # 是否清理载具
+      projectiles: false    # 是否清理弹射物
+      special: false        # 是否清理特殊实体
+    fine:                  # 服务器状态为良好时,清理等级2
+      show: "中级"
+      monsters: true        # 是否清理怪物
+      animals: false        # 是否清理动物
+      items: true           # 是否清理物品
+      vehicles: false       # 是否清理载具
+      projectiles: true     # 是否清理弹射物
+      special: false        # 是否清理特殊实体
+    bad:                   # 服务器状态为很差时,清理等级3
+      show: "高级"
+      monsters: true        # 是否清理怪物
+      animals: true         # 是否清理动物
+      items: true           # 是否清理物品
+      vehicles: true        # 是否清理载具
+      projectiles: true     # 是否清理弹射物
+      special: true         # 是否清理特殊实体
+

@@ -1,0 +1,12 @@
+name: clear
+main: com.HotWaterFlask.clear.ClearPlugin
+version: 3.0
+author: HotWaterFlask
+api-version: '1.13'
+description: A plugin to clear entities in Minecraft worlds
+commands:
+  clear:
+    description: Clear entities in the world
+    usage: /<command> [reload|info|start]
+    permission: clear.use
+    permission-message: You don't have permission to use this command.
